@@ -107,7 +107,7 @@ class Joystick:
 	def get_center(self):
 		return self.center
 
-joystick = joystick(pin_left, pinh_right, pin_up, pin_down, pincenter)
+joystick = Joystick(pin_left, pinh_right, pin_up, pin_down, pincenter)
 signal.signal(signal.SIGINT, signal_handler)
 while True:
 	if connect_to_wifi():
