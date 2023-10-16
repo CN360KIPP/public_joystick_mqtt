@@ -1,10 +1,64 @@
 import network
 import time
-from machine import Pin
-from umqtt.simple import MQTTClient
-
+import paho.mqtt.client as mqtt
 import signal
-import gpiozero import Button
+from gpiozero import Button
+from pywifi import PyWiFi, const
+
+# WiFi credentials
+WIFI_SSID = "KT"
+WIFI_PASSWORD = "1234567890"
+
+# MQTT broker settings
+MQTT_BROKER = "broker.hivemq.com"
+MQTT_PORT = 1883
+MQTT_TOPIC = "joystick"
+MQTT_USERNAME = "KIPP"
+MQTT_PASSWORD = "raspberry"
+
+def connect_to_wifi():
+    wifi = PyWiFi()
+    iface = wifi.interfaces()[0]
+
+    profile = iface.add_network_profile()
+    profile.ssid = WIFI_SSID
+    profile.auth = const.AUTH_ALG_OPEN
+    profile.akm.append(const.AKM_TYPE_WPA2PSK)
+    profile.cipher = const.CIPHER_TYPE_CCMP
+    profile.key = WIFI_PASSWORD
+
+    iface.remove_all_network_profiles()
+    iface.connect(profile)
+    time.sleep(5)
+
+    if iface.status() == const.IFACE_CONNECTED:
+        print("Connected to WiFi")
+        return True
+    else:
+        print("Failed to connect to WiFi")
+        return False
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT Broker")
+    else:
+        print(f"Connection to MQTT Broker failed with code {rc}")
+
+def send_mqtt_data(data):
+    client = mqtt.Client()
+    client.on_connect = on_connect
+
+    client.username_pw_set(username=MQTT_USERNAME, password=MQTT_PASSWORD)
+    client.connect(MQTT_BROKER, MQTT_PORT)
+
+    client.loop_start()
+
+    client.publish(MQTT_TOPIC, data)
+    time.sleep(2)
+
+    client.loop_stop()
+    client.disconnect()
+    print(f"Data sent to MQTT: {data}")
 
 def signal_handler(sig, frame):
 	GPIO.cleanup()
@@ -16,13 +70,6 @@ pin_right = 18
 pin_up = 6
 pin_down = 23
 pin_center = 22
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect("Wi-Fi AP","PASSWORD")
-
-time.sleep(5)
-print(wlan.isconnected())
 
 class Joystick:
 	def __init__(self, left, right, up, down, center):
@@ -63,8 +110,12 @@ class Joystick:
 joystick = joystick(pin_left, pinh_right, pin_up, pin_down, pincenter)
 signal.signal(signal.SIGINT, signal_handler)
 while True:
-	joystick.update(8)
-	x = joystick.get_x()
-	y = joystick.get_y()
-	center = joystick.get_center()
-	print(f"X: {x}, Y: {y}, Center: {center}")
+	if connect_to_wifi():
+		joystick.update(8)
+		x = joystick.get_x()
+		y = joystick.get_y()
+		center = joystick.get_center()
+		print(f"X: {x}, Y: {y}, Center: {center}")
+		data_to_send = f"X: {x}, Y: {y}, Center: {center}"
+		send_mqtt_data(data_to_send)
+
