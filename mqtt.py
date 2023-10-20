@@ -198,7 +198,7 @@ def on_pre_connect(client, userdata):
 client = mqtt.Client("KIPP") #this name should be unique
 client.on_pre_connect = on_pre_connect
 client.on_publish = on_publish
-client.connect('127.0.0.1',1883)
+client.connect('172.20.10.7',1883)
 # start a new thread
 client.loop_start()
 # joystick pin
@@ -252,7 +252,7 @@ while True:
 		center = joystick.get_center()
 		msg = f"X: {x}, Y: {y}, Center: {center}"
 		print(msg)
-		pubMsg = client.publish(topic='rpi/broadcast',
+		pubMsg = client.publish(topic='joystick',
 		payload=msg.encode('utf-8'),
 		qos=0,)
 		pubMsg.wait_for_publish()
