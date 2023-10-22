@@ -25,9 +25,9 @@ center to be toggle to keep x,y frezze in range [0,1] >> 1 char
 char data[11];
 int x, y, center;
  
-char *ssidC="Khaw_cafe_2.4GHz";
-char *passC="commontu88";
-char *servC="192.168.1.185";
+char *ssidC="KT";
+char *passC="1234567890";
+char *servC="172.20.10.4";
 
 const char* gcTopic = "joystick";
 const String gsClientId = "M5Stick_RoverC";
@@ -77,8 +77,6 @@ void connectMqttSub()
   myMqttClient.setCallback(gotMessageViaMqtt);
 }
 
- 
-
 void reconnectMqttSub()
 {
   while( ! myMqttClient.connected() )
@@ -92,9 +90,7 @@ void reconnectMqttSub()
     }
     delay(1000);
   }
-}
-
- 
+} 
 
 void gotMessageViaMqtt(char * pctoic, byte * pbpayload, uint32_t uiLen){
   Serial.print(pctoic);
@@ -156,7 +152,7 @@ void setup() {
   canvas.setTextColor(ORANGE);
   roverc.setSpeed(0, 0, 0);
   canvas.setTextDatum(MC_DATUM);
-  canvas.drawString("RoverC TEST", 80, 40, 4);
+  canvas.drawString("RoverC Test", 80, 40, 4);
   canvas.pushSprite(0, 0);
   delay(1000);
 
@@ -179,8 +175,6 @@ void setup() {
 
 }
 
- 
-
 void loop(){
   reconnectMqttSub();
   M5.Lcd.fillScreen(BLACK);
@@ -199,10 +193,10 @@ void loop(){
   M5.Lcd.printf("X:%d\nY:%d\nC:%d", x, y, center);
 
   // roverc.setSpeed(int8_t x, int8_t y, int8_t z)
+  roverc.setSpeed(x, y, center*100);
 
-  roverc.setSpeed(0, y, 0);
   // M5.update();
   myMqttClient.loop();
-  delay(1000);
+  delay(500);
 
 }
