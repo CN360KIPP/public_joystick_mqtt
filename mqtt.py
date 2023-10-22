@@ -198,7 +198,7 @@ def on_pre_connect(client, userdata):
 client = mqtt.Client("KIPP") #this name should be unique
 client.on_pre_connect = on_pre_connect
 client.on_publish = on_publish
-client.connect('172.20.10.7',1883)
+client.connect('172.20.10.4',1883)
 # start a new thread
 client.loop_start()
 # joystick pin

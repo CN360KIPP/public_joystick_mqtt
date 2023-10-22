@@ -39,14 +39,10 @@ class Joystick:
 		self.pin_center = pin_center
 		self.x_value = 0
 		self.y_value = 0
-		self.center_value = 0
 	def update(self, len):
-		if Button(self.pin_center).is_pressed:
-			if self.center_value < 255:
-				self.center_value += len
-		else:
-			if self.center_value > 0:
-				self.center_value -= len
+		'''
+		X value
+		'''
 		if Button(self.pin_left).is_pressed:
 			if self.x_value > -100:
 				self.x_value -= len
@@ -54,7 +50,10 @@ class Joystick:
 			if self.x_value < 100:
 				self.x_value += len
 		else:
-			self.y_value = 0
+			self.x_value = 0
+		'''
+		y value
+		'''
 		if Button(self.pin_top).is_pressed:
 			if self.y_value < 100:
 				self.y_value += len
@@ -82,7 +81,7 @@ joystick = Joystick(button_left, button_right, button_top, button_down, button_c
 signal.signal(signal.SIGINT, signal_handler)
 while True:
 	try:
-		joystick.update(8)
+		joystick.update(25)
 		x = joystick.get_x()
 		y = joystick.get_y()
 		center = joystick.get_center_bit()
