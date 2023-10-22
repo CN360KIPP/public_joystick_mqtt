@@ -48,17 +48,21 @@ class Joystick:
 			if self.center_value > 0:
 				self.center_value -= len
 		if Button(self.pin_left).is_pressed:
-			if self.x_value > -180:
+			if self.x_value > -100:
 				self.x_value -= len
-		if Button(self.pin_right).is_pressed:
-			if self.x_value < 180:
+		elif Button(self.pin_right).is_pressed:
+			if self.x_value < 100:
 				self.x_value += len
+		else:
+			self.y_value = 0
 		if Button(self.pin_top).is_pressed:
 			if self.y_value < 100:
 				self.y_value += len
-		if Button(self.pin_down).is_pressed:
+		elif Button(self.pin_down).is_pressed:
 			if self.y_value > -100:
 				self.y_value -= len
+		else:
+			self.y_value = 0
 	def get_x(self):
 		return self.x_value
 	def get_y(self):
@@ -84,7 +88,7 @@ while True:
 		center = joystick.get_center_bit()
 		msg = "{0:4.0f} {1:4.0f} {2:1.0f}".format(x, y, center)
 		print(msg)
-		pubMsg = client.publish(args.topic, args.message, qos=args.qos)
+		pubMsg = client.publish(args.topic, msg, qos=args.qos)
 		pubMsg.wait_for_publish()
 		print(pubMsg.is_published())
 	except Exception as e:
